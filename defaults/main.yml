@@ -1,2 +1,29 @@
 ---
 # defaults file for openshift-thanos
+# k8s client
+k8s_auth_verify_ssl: false
+
+# base vars
+
+thanos_project: thanos
+
+# images
+minio_image: minio/minio
+thanos_image: improbable/thanos
+
+minio_image_version: latest
+thanos_image_version: v0.2.1
+
+# minio
+
+minio_storage_size: 20Gi
+minio_bucket_name: data
+minio_endpoint:
+minio_endpoint_insecure: true
+minio_signature_version2: true
+
+# thanos
+
+
+storage_access_key: random
+storage_secret_key: asdf1234

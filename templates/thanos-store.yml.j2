@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: thanos-store
+spec:
+  serviceName: "thanos-store"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos
+      thanos-peer: "true"
+  template:
+    metadata:
+      labels:
+        app: thanos
+        thanos-peer: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10902"
+    spec:
+      containers:
+      - name: thanos-store
+        # Always use explicit image tags (release or master-<date>-sha) instead of ambigous `latest` or `master`.
+        image: {{ thanos_image }}:{{ thanos_image_version }}
+        args:
+        - "store"
+        - "--log.level=debug"
+        - "--data-dir=/var/thanos/store"
+        - "--cluster.peers=thanos-peers.{{ thanos_project }}.svc.cluster.local:10900"
+        # NOTE: This is required to be added in GCS prior startup of this.
+        - "--objstore.config-file=/etc/thanos-bucket-conf/bucket-config.yml"
+        ports:
+        - name: http
+          containerPort: 10902
+        - name: grpc
+          containerPort: 10901
+        - name: cluster
+          containerPort: 10900
+        volumeMounts:
+        - name: data
+          mountPath: /var/thanos/store
+        - name: bucket-config
+          mount-path: /etc/thanos-bucket-conf
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: bucket-config
+        configMap:
+          name: bucket-config

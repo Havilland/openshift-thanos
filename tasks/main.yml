@@ -1,2 +1,6 @@
 ---
 # tasks file for openshift-thanos
+
+- include: 00-config-tasks.yml
+
+
